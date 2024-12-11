@@ -121,7 +121,7 @@ const MarketCard = ({ image, name, tokenId, price, seller, metadata, ...props })
         ) : (
           <Heading align={"center"} fontSize={"lg"} color={"blue.500"}>
             Eres el vendedor
-
+          <br></br>
             <Button
             
   rounded={"full"}

@@ -6,30 +6,78 @@ import {
   Button,
   Box,
   useToast,
+  Stat,
+  StatLabel,
+  StatNumber,
+  StatHelpText,
+  StatArrow,
+  StatGroup,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  Image,
 } from "@chakra-ui/react";
 import { Link, useHistory } from "react-router-dom";
 import { useWeb3React } from "@web3-react/core";
 import { useCallback, useEffect, useState } from "react";
 import useSelvaPunks from "../../hooks/useSelvaPunks";
+import Web3 from "web3";
 
 const Home = () => {
   const [isMinting, setIsMinting] = useState(false);
   const { active, account } = useWeb3React();
-  const [maxSupply, setMaxSupply] = useState();
+  const [totalMinted, setTotalMinted] = useState(0);
+  const [totalMarketplace, setTotalMarketplace] = useState(0);
+  const [totalFunds, setTotalFunds] = useState(0);
+  
+  const [newlyMintedNFT, setNewlyMintedNFT] = useState(null);
+  const [showMintModal, setShowMintModal] = useState(false);
   const selvaPunks = useSelvaPunks();
   const toast = useToast();
   const history = useHistory();
+  
 
-  const getMaxSupply = useCallback(async () => {
+// Inicializar Web3 con el proveedor de Holesky
+const web3 = new Web3(
+  new Web3.providers.HttpProvider(
+    "https://holesky.infura.io/v3/1d7ef131825540328fa01ed61f5f7779"
+  )
+);
+
+
+  const getProjectStats = useCallback(async () => {
     if (selvaPunks) {
-      const result = await selvaPunks.methods.totalSupply().call();
-      setMaxSupply(result);
+      const totalMintedCount = await selvaPunks.methods.totalMinted().call();
+      setTotalMinted(totalMintedCount);
+
+      // Obtener el número de SelvaPunks en el Marketplace
+      let totalMarketplaceCount = 0;
+      for (let i = 0; i < totalMintedCount; i++) {
+        const listing = await selvaPunks.methods.marketplaceListings(i).call();
+        if (listing.isActive) {
+          totalMarketplaceCount++;
+        }
+      }
+      setTotalMarketplace(totalMarketplaceCount);
+
+      // Obtener el total de fondos recaudados
+      const [balance] = await Promise.all([
+        web3.eth.getBalance(
+          "0xC130E91d6136dA905d09a636ebb40dDD2B853EbE"
+        )
+      ]);
+
+      setTotalFunds(parseFloat(balance));
+    //  setEthPrice(ethPriceData);
     }
-  }, [selvaPunks]);
+  }, [selvaPunks, web3]);
 
   useEffect(() => {
-    getMaxSupply();
-  }, [getMaxSupply]);
+    getProjectStats();
+  }, [getProjectStats]);
 
   if (!active) return "Conecta tu wallet";
 
@@ -49,8 +97,13 @@ const Home = () => {
           status: "info",
         });
       })
-      .on("receipt", () => {
+      .on("receipt", async (receipt) => {
         setIsMinting(false);
+        getProjectStats(); // Actualizar las métricas después del minteo
+        const tokenId = receipt.events.NFTMinted.returnValues.tokenId;
+        const tokenURI = await selvaPunks.methods.tokenURI(tokenId).call();
+        setNewlyMintedNFT({ tokenId, tokenURI });
+        setShowMintModal(true);
         toast({
           title: "Transacción confirmada",
           description: "¡Felicidades! Ahora eres dueño de un nuevo SelvaPunk.",
@@ -66,6 +119,8 @@ const Home = () => {
         });
       });
   };
+
+  const totalFundsEth = totalFunds / 1e18;
 
   const navigateToMyNFTs = () => {
     history.push(`/mis_nfts?address=${account}`);
@@ -116,6 +171,32 @@ const Home = () => {
             su comercialización, permiten obtener fondos para salvar animales
             en peligro de extinción de la región Ucayali.
           </Text>
+          <StatGroup>
+            <Stat>
+              <StatLabel>SelvaPunks Minteados</StatLabel>
+              <StatNumber>{totalMinted}</StatNumber>
+              <StatHelpText>
+                <StatArrow type="increase" />
+                Incremento continuo
+              </StatHelpText>
+            </Stat>
+            <Stat>
+              <StatLabel>En Marketplace</StatLabel>
+              <StatNumber>{totalMarketplace}</StatNumber>
+              <StatHelpText>
+                <StatArrow type="increase" />
+                Listas activas
+              </StatHelpText>
+            </Stat>
+            <Stat>
+              <StatLabel>Fondos Recaudados</StatLabel>
+              <StatNumber>${totalFundsEth.toFixed(4)}</StatNumber>
+              <StatHelpText>
+                <StatArrow type="increase" />
+               En aumento
+              </StatHelpText>
+            </Stat>
+          </StatGroup>
           <Stack
             spacing={4}
             direction="column"
@@ -124,8 +205,12 @@ const Home = () => {
             maxW="400px"
             mx="auto"
           >
-            {/* First Line */}
-            <Stack direction={{ base: "column", sm: "row" }} spacing={4} width="100%">
+            {/* Primera Línea */}
+            <Stack
+              direction={{ base: "column", sm: "row" }}
+              spacing={4}
+              width="100%"
+            >
               <Button
                 rounded="full"
                 size="lg"
@@ -156,8 +241,12 @@ const Home = () => {
               </Link>
             </Stack>
 
-            {/* Second Line */}
-            <Stack direction={{ base: "column", sm: "row" }} spacing={4} width="100%">
+            {/* Segunda Línea */}
+            <Stack
+              direction={{ base: "column", sm: "row" }}
+              spacing={4}
+              width="100%"
+            >
               <Link to="/Selvapunks">
                 <Button
                   rounded="full"
@@ -193,7 +282,7 @@ const Home = () => {
                   _hover={{ bg: "var(--chakra-colors-gray-300)" }}
                   width="100%"
                 >
-                  Financiamiento
+                  Recaudación de fondos
                 </Button>
               </Link>
             </Stack>
@@ -219,6 +308,26 @@ const Home = () => {
           />
         </Flex>
       </Stack>
+
+      {/* Animación de Minteo */}
+      <Modal isOpen={showMintModal} onClose={() => setShowMintModal(false)}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>¡Nuevo SelvaPunk Minteado!</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            {newlyMintedNFT && (
+              <Image
+                src={newlyMintedNFT.tokenURI+".png"}
+                alt={`SelvaPunk #${newlyMintedNFT.tokenId}`}
+                borderRadius="md"
+                animation="fadeIn 0.5s ease-in-out"
+              />
+            )}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+      
     </Box>
   );
 };
