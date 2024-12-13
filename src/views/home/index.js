@@ -37,6 +37,7 @@ const Home = () => {
   const [mintTransactionHash, setMintTransactionHash] = useState(null);
   const [newlyMintedNFT, setNewlyMintedNFT] = useState(null);
   const [showMintModal, setShowMintModal] = useState(false);
+  const [mintLoadingDots, setMintLoadingDots] = useState('');
   const selvaPunks = useSelvaPunks();
   const toast = useToast();
   const history = useHistory();
@@ -47,6 +48,19 @@ const Home = () => {
       "https://holesky.infura.io/v3/1d7ef131825540328fa01ed61f5f7779"
     )
   );
+
+  // Efecto para animar los puntos de carga durante el minteo
+  useEffect(() => {
+    let intervalId;
+    if (isMinting) {
+      intervalId = setInterval(() => {
+        setMintLoadingDots(prev => 
+          prev.length >= 3 ? '' : prev + '.'
+        );
+      }, 500);
+    }
+    return () => clearInterval(intervalId);
+  }, [isMinting]);
 
   const getProjectStats = useCallback(async () => {
     if (selvaPunks) {
@@ -152,9 +166,10 @@ const Home = () => {
               mb={4}
               ml={8}
               rounded="md"
-              
             />
-            <Text color="white" fontSize="2xl" align="center">Minteando SelvaPunk...</Text>
+            <Text color="white" fontSize="2xl" align="center">
+              Minteando SelvaPunk{mintLoadingDots}
+            </Text>
           </Box>
         </Box>
       )}
@@ -309,6 +324,7 @@ const Home = () => {
                   _hover={{ bg: "var(--chakra-colors-gray-300)" }}
                   width="100%"
                   onClick={navigateToMyNFTs}
+                  fontSize={{ base: "sm", md: "md" }} // Ajuste de tamaño de texto para Mis NFTs
                 >
                   Mis NFTs
                 </Button>
@@ -359,7 +375,10 @@ const Home = () => {
         >
           <ModalOverlay />
           <ModalContent>
-            <ModalHeader>¡Nuevo SelvaPunk Minteado!</ModalHeader>
+            <ModalHeader align="center">
+            ¡Nuevo SelvaPunk Minteado!
+              
+            </ModalHeader>
             <ModalCloseButton />
             <ModalBody>
               {newlyMintedNFT && (
@@ -370,6 +389,8 @@ const Home = () => {
                     borderRadius="md"
                     animation="fadeIn 0.5s ease-in-out"
                   />
+                  <Text align="center"> <b>{newlyMintedNFT && `SelvaPunk #${newlyMintedNFT.tokenId}`} </b></Text>
+
                   {mintTransactionHash && (
                     <ChakraLink
                       href={`https://holesky.etherscan.io/tx/${mintTransactionHash}`}
