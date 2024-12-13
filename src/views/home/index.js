@@ -316,16 +316,15 @@ const Home = () => {
                   </Button>
                 </Link>
                 <Button
-                  rounded="full"
-                  size="lg"
-                  fontWeight="normal"
-                  px={6}
-                  bg="var(--chakra-colors-gray-200)"
-                  _hover={{ bg: "var(--chakra-colors-gray-300)" }}
-                  width="100%"
-                  onClick={navigateToMyNFTs}
-                  fontSize={{ base: "sm", md: "md" }} // Ajuste de tamaño de texto para Mis NFTs
-                >
+                    rounded="full"
+                    size="lg"
+                    fontWeight="normal"
+                    px={14}
+                    bg="var(--chakra-colors-gray-200)"
+                    _hover={{ bg: "var(--chakra-colors-gray-300)" }}
+                    width={"auto"}
+                    height={"45px"}
+                  >
                   Mis NFTs
                 </Button>
                 <Link to="/Financiamiento">
