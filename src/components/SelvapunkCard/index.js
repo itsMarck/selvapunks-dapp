@@ -74,7 +74,7 @@ const SelvapunkCard = ({ image, name, tokenId, owner, metadata, ...props }) => {
       p={6}
       maxW={"330px"}
       w={"full"}
-      bg={useColorModeValue("white", "gray.800")}
+      bg={useColorModeValue("teal.50", "gray.800")}
       boxShadow={"2xl"}
       rounded={"lg"}
       pos={"relative"}
@@ -156,16 +156,19 @@ const SelvapunkCard = ({ image, name, tokenId, owner, metadata, ...props }) => {
             </Text>
             <Flex wrap="wrap" gap={2}>
               {metadata.attributes.map((attr, index) => (
-                <Badge
+                <Box
                   key={index}
                   px={2}
                   py={1}
                   borderRadius="full"
-                  colorScheme="teal"
-                  fontSize="xs"
+                  bg="teal.100"
+                  fontSize="sm"
+                  rounded={"md"}
+                  fontWeight="medium"
+                  
                 >
                   {attr.trait_type}: {attr.value}
-                </Badge>
+                </Box>
               ))}
             </Flex>
           </Box>

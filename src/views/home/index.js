@@ -164,11 +164,11 @@ const Home = () => {
               alt="Minteando SelvaPunk"
               boxSize="150px"
               mb={4}
-              ml={8}
+              ml={14}
               rounded="md"
             />
             <Text color="white" fontSize="2xl" align="center">
-              Minteando SelvaPunk{mintLoadingDots}
+              Obteniendo tu SelvaPunk{mintLoadingDots}
             </Text>
           </Box>
         </Box>
@@ -315,6 +315,7 @@ const Home = () => {
                     Galería
                   </Button>
                 </Link>
+                <Link to="/Mis_nfts">
                 <Button
                     rounded="full"
                     size="lg"
@@ -327,6 +328,7 @@ const Home = () => {
                   >
                   Mis NFTs
                 </Button>
+                </Link>
                 <Link to="/Financiamiento">
                   <Button
                     rounded="full"

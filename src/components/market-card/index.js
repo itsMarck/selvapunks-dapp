@@ -1,12 +1,12 @@
 import {
   Box,
-  useColorModeValue,
   Heading,
   Button,
   Stack,
   Text,
   Flex,
   Image,
+  Tooltip,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useWeb3React } from "@web3-react/core";
@@ -17,12 +17,11 @@ const MarketCard = ({ image, name, tokenId, price, seller, metadata, ...props })
   const selvaPunks = useSelvaPunks();
   const [isDelisting, setIsDelisting] = useState(false);
 
-  // Función para comprar un NFT del marketplace
   const buy = async () => {
     try {
       await selvaPunks.methods.purchaseNFT(tokenId).send({
         from: account,
-        value: price, // El precio del NFT en wei
+        value: price,
       });
       alert("¡Compra exitosa!");
     } catch (error) {
@@ -46,116 +45,97 @@ const MarketCard = ({ image, name, tokenId, price, seller, metadata, ...props })
 
   return (
     <Box
-      role={"group"}
       p={6}
       maxW={"330px"}
       w={"full"}
-      bg={useColorModeValue("cyan.50", "gray.800")}
-      boxShadow={"2xl"}
+      bg={"cyan.50"}
+      boxShadow={"lg"}
       rounded={"lg"}
-      pos={"relative"}
-      zIndex={1}
+      overflow={"hidden"}
+      _hover={{ boxShadow: "2xl", transform: "scale(1.05)" }}
+      transition="all 0.3s ease"
       {...props}
     >
-      <Box
-        rounded={"lg"}
-        pos={"relative"}
-        height={"230px"}
-        _after={{
-          transition: "all .3s ease",
-          content: '""',
-          w: "full",
-          h: "full",
-          pos: "absolute",
-          top: 0,
-          left: 0,
-          backgroundImage: `url(${image})`,
-          filter: "blur(15px)",
-          zIndex: -1,
-        }}
-        _groupHover={{
-          _after: {
-            filter: "blur(20px)",
-          },
-        }}
-      >
+      <Box pos={"relative"}>
         <Image
-          rounded={"lg"}
-          height={230}
-          width={282}
-          objectFit={"cover"}
           src={image}
+          alt={name}
+          rounded={"lg"}
+          objectFit={"cover"}
+          height={230}
+          width={"full"}
         />
       </Box>
-      <Stack pt={10} align={"center"}>
-        <Heading fontSize={"xl"} fontFamily={"body"} fontWeight={500}>
-          {name}
-        </Heading>
-
-        <Flex align="center">
-        <Image 
-    src="/ethereum-icon.png" 
-    alt="Ethereum" 
-    boxSize="30px" 
-    // Espaciado a la derecha
-  /> 
-
-        <Heading fontSize={"xl"} fontFamily={"body"} fontWeight={500}> 
-          {library.utils.fromWei(price, "ether")} eth
+      <Stack pt={4} align={"center"}>
+        <Heading fontSize={"xl"}>{name}</Heading>
+        <Flex align="center" gap={2}>
+          <Image src="/ethereum-icon.png" alt="Ethereum" boxSize="24px" />
+          <Text fontSize="lg" fontWeight="bold">
+            {library.utils.fromWei(price, "ether")} ETH
+          </Text>
           
-        </Heading>
         </Flex>
-        {seller !== account ? ( // Mostrar botón de comprar solo si el usuario no es el vendedor
-          <Button
-            rounded={"full"}
-            size={"lg"}
-            fontWeight="bold"
-            px={6}
-
-            bg={"blue.100"}
-            color={"blue.500"}
-            onClick={buy}
-          >
+        <Text fontWeight="bold">
+          ${(((price/1e18)*3839.2).toFixed(2))} | S/{((price/1e18)*3.75*3839.2).toFixed(2)}  
+          </Text>
+        {seller !== account ? (
+          <Button colorScheme="blue" onClick={buy} size="sm">
             Comprar
           </Button>
         ) : (
-          <Heading align={"center"} fontSize={"lg"} color={"blue.500"}>
-            Eres el vendedor
-          <br></br>
+          <>
+            <Text fontSize="large" color="blue.500" >
+             <b> Eres el vendedor</b>
+            </Text>
             <Button
-            
-  rounded={"full"}
-  size={"lg"}
-  fontWeight="bold"
-  textAlign={"center"}
-  px={6}
-  bg={"blue.100"}
-  color={"blue.500"}
-  onClick={deslist}
-  isLoading={isDelisting} // Deshabilita el botón mientras está cargando
-  mt={2}
->
-  Deslistar
-</Button>
-          </Heading>
-          
+              colorScheme="blue"
+              onClick={deslist}
+              size="sm"
+              isLoading={isDelisting}
+            >
+              Deslistar
+            </Button>
+          </>
         )}
-         {metadata?.attributes && (
-          <Box>
-            <Text fontWeight="semibold" mb={2}>Atributos:</Text>
-            <Flex wrap="wrap" gap={2}>
+
+        {metadata?.attributes && (
+          <Box mt={4} w="full">
+            <Text fontWeight="semibold">Atributos:</Text>
+            <Flex wrap="wrap" gap={2} mt={2}>
               {metadata.attributes.map((attr, index) => (
-                <Box 
-                  key={index} 
-                  bg="cyan.100" 
-                  px={2} 
-                  py={1} 
-                  rounded="md"
-                >
-                  <Text fontSize="sm">
-                    {attr.trait_type}: {attr.value}
+                <Tooltip
+                  key={index}
+                  label={
+                    <Box  display="flex"
+                    flexDirection="column"
+                    alignItems="center"
+                    justifyContent="center"
+                    textAlign="center">
+                    <Image
+                      src={`/atributos/${attr.value}.png`}
+                      alt={attr.trait_type}
+                      boxSize="50px"
+                      mb={2}
+                    />
+                    <Text fontSize="sm" fontWeight="medium">
+                    {attr.value}
                   </Text>
-                </Box>
+                  </Box>
+
+                  }
+                >
+                  <Box
+                    bg="blue.100"
+                    px={3}
+                    py={1}
+                    rounded="md"
+                    fontSize="sm"
+                    fontWeight="medium"
+                    textAlign="center"
+                  >
+                    {attr.trait_type}: {attr.value}
+                  </Box>
+                </Tooltip>
               ))}
             </Flex>
           </Box>

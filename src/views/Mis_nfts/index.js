@@ -53,7 +53,7 @@ const Mis_nfts = () => {
     <Box p={6}>
       {/* Encabezado */}
       <VStack spacing={4} mb={8} textAlign="center">
-        <Heading fontSize="3xl" color="orange.500">
+        <Heading fontSize="3xl" color="green.500">
           ¡Bienvenido a tus NFTs!
         </Heading>
         <Text fontSize="lg" color="gray.600">

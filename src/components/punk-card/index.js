@@ -144,7 +144,7 @@ const calculateRarity = () => {
       p={6}
       maxW={"330px"}
       w={"full"}
-      bg={useColorModeValue("orange.200", "gray.800")}
+      bg={useColorModeValue("green.50", "gray.800")}
       boxShadow={"2xl"}
       rounded={"lg"}
       pos={"relative"}
@@ -203,11 +203,11 @@ const calculateRarity = () => {
           <Text fontWeight="semibold">Dueño:</Text>
           <Tooltip label={owner}>
             <Flex alignItems="center">
-              <Text mr={2} rounded="lg" fontWeight="bold" color="orange.500" fontSize={"lg"} >Tú</Text>
+              <Text mr={2} rounded="lg" fontWeight="bold" color="green.500" fontSize={"lg"} >Tú</Text>
               <CopyIcon 
                 cursor="pointer" 
                 onClick={() => copyToClipboard(owner)}
-                color="orange.500"
+                color="green.500"
               />
             </Flex>
           </Tooltip>
@@ -220,12 +220,13 @@ const calculateRarity = () => {
               {metadata.attributes.map((attr, index) => (
                 <Box 
                   key={index} 
-                  bg="orange.100" 
+                  bg="green.100" 
                   px={2} 
                   py={1} 
                   rounded="md"
                 >
-                  <Text fontSize="sm" >
+                  <Text fontSize="sm" 
+                  fontWeight="medium">
                     {attr.trait_type}: {attr.value}
                   </Text>
                 </Box>
@@ -239,13 +240,13 @@ const calculateRarity = () => {
           <Button 
             rounded={"full"} 
             size={"lg"}
-            color="orange.500"
+            color="white"
             px={6} 
             onClick={vender} 
             isLoading={transfering}
             w="full"
             fontSize={"lg"}
-            bg={"orange.100"}
+            bg={"green.500"}
             fontWeight="bold"
           >
             Vender
