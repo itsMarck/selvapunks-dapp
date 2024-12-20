@@ -98,48 +98,52 @@ const MarketCard = ({ image, name, tokenId, price, seller, metadata, ...props })
           </>
         )}
 
-        {metadata?.attributes && (
-          <Box mt={4} w="full">
-            <Text fontWeight="semibold">Atributos:</Text>
-            <Flex wrap="wrap" gap={2} mt={2}>
-              {metadata.attributes.map((attr, index) => (
-                <Tooltip
-                  key={index}
-                  label={
-                    <Box  display="flex"
-                    flexDirection="column"
-                    alignItems="center"
-                    justifyContent="center"
-                    textAlign="center">
-                    <Image
-                      src={`/atributos/${attr.value}.png`}
-                      alt={attr.trait_type}
-                      boxSize="50px"
-                      mb={2}
-                    />
-                    <Text fontSize="sm" fontWeight="medium">
-                    {attr.value}
-                  </Text>
-                  </Box>
-
-                  }
-                >
-                  <Box
-                    bg="blue.100"
-                    px={3}
-                    py={1}
-                    rounded="md"
-                    fontSize="sm"
-                    fontWeight="medium"
-                    textAlign="center"
-                  >
-                    {attr.trait_type}: {attr.value}
-                  </Box>
-                </Tooltip>
-              ))}
-            </Flex>
+{metadata?.attributes && (
+  <Box mt={4} w="full">
+    <Text fontWeight="semibold">Atributos:</Text>
+    <Flex wrap="wrap" gap={2} mt={2}>
+      {metadata.attributes.map((attr, index) => (
+        <Tooltip
+          key={index}
+          label={
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+              textAlign="center"
+              p={2} // Agregar espacio alrededor del contenido
+            >
+              <Image
+                src={`/atributos/${attr.value}.png`}
+                alt={attr.trait_type}
+                boxSize="50px"
+                mb={2}
+                mt={2} // Espaciado superior
+                border="3px solid gray" // Agregar un borde
+                borderRadius="md" // Opcional: bordes redondeados
+              />
+              <Text fontSize="sm" fontWeight="medium">
+                {attr.value}
+              </Text>
+            </Box>
+          }
+        >
+          <Box
+            bg="blue.100"
+            px={3}
+            py={1}
+            rounded="md"
+            fontSize="sm"
+            fontWeight="medium"
+          >
+            {attr.trait_type}: {attr.value}
           </Box>
-        )}
+        </Tooltip>
+      ))}
+    </Flex>
+  </Box>
+)}
       </Stack>
     </Box>
   );

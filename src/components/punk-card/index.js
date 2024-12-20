@@ -214,26 +214,53 @@ const calculateRarity = () => {
         </HStack>
 
         {metadata?.attributes && (
-          <Box>
-            <Text fontWeight="semibold" mb={2}>Atributos:</Text>
-            <Flex wrap="wrap" gap={2}>
-              {metadata.attributes.map((attr, index) => (
-                <Box 
-                  key={index} 
-                  bg="green.100" 
-                  px={2} 
-                  py={1} 
-                  rounded="md"
-                >
-                  <Text fontSize="sm" 
-                  fontWeight="medium">
-                    {attr.trait_type}: {attr.value}
-                  </Text>
-                </Box>
-              ))}
-            </Flex>
+  <Box mt={4} w="full">
+    <Text fontWeight="semibold">Atributos:</Text>
+    <Flex wrap="wrap" gap={2} mt={2}>
+      {metadata.attributes.map((attr, index) => (
+        <Tooltip
+          key={index}
+          label={
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+              textAlign="center"
+              p={2} // Agregar espacio alrededor del contenido
+            >
+              <Image
+                src={`/atributos/${attr.value}.png`}
+                alt={attr.trait_type}
+                boxSize="50px"
+                mb={2}
+                mt={2} // Espaciado superior
+                border="3px solid gray" // Agregar un borde
+                borderRadius="md" // Opcional: bordes redondeados
+              />
+              <Text fontSize="sm" fontWeight="medium">
+                {attr.value}
+              </Text>
+            </Box>
+          }
+        >
+          <Box
+            bg="green.100"
+            px={3}
+            py={1}
+            rounded="md"
+            fontSize="sm"
+            fontWeight="medium"
+          >
+            {attr.trait_type}: {attr.value}
           </Box>
-        )}
+        </Tooltip>
+      ))}
+    </Flex>
+  </Box>
+)}
+
+
 
         <HStack spacing={4} pt={4}>
           
