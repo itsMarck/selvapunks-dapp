@@ -74,7 +74,7 @@ const SelvapunkCard = ({ image, name, tokenId, owner, metadata, ...props }) => {
       p={6}
       maxW={"330px"}
       w={"full"}
-      bg={useColorModeValue("white", "gray.800")}
+      bg={useColorModeValue("teal.50", "gray.800")}
       boxShadow={"2xl"}
       rounded={"lg"}
       pos={"relative"}
@@ -150,26 +150,51 @@ const SelvapunkCard = ({ image, name, tokenId, owner, metadata, ...props }) => {
         </HStack>
 
         {metadata?.attributes && (
-          <Box>
-            <Text fontWeight="semibold" mb={2}>
-              Atributos:
-            </Text>
-            <Flex wrap="wrap" gap={2}>
-              {metadata.attributes.map((attr, index) => (
-                <Badge
-                  key={index}
-                  px={2}
-                  py={1}
-                  borderRadius="full"
-                  colorScheme="teal"
-                  fontSize="xs"
-                >
-                  {attr.trait_type}: {attr.value}
-                </Badge>
-              ))}
-            </Flex>
+  <Box mt={4} w="full">
+    <Text fontWeight="semibold">Atributos:</Text>
+    <Flex wrap="wrap" gap={2} mt={2}>
+      {metadata.attributes.map((attr, index) => (
+        <Tooltip
+          key={index}
+          label={
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+              textAlign="center"
+              p={2} // Agregar espacio alrededor del contenido
+            >
+              <Image
+                src={`/atributos/${attr.value}.png`}
+                alt={attr.trait_type}
+                boxSize="50px"
+                mb={2}
+                mt={2} // Espaciado superior
+                border="3px solid gray" // Agregar un borde
+                borderRadius="md" // Opcional: bordes redondeados
+              />
+              <Text fontSize="sm" fontWeight="medium">
+                {attr.value}
+              </Text>
+            </Box>
+          }
+        >
+          <Box
+            bg="teal.100"
+            px={3}
+            py={1}
+            rounded="md"
+            fontSize="sm"
+            fontWeight="medium"
+          >
+            {attr.trait_type}: {attr.value}
           </Box>
-        )}
+        </Tooltip>
+      ))}
+    </Flex>
+  </Box>
+)}
       </VStack>
     </Box>
   );

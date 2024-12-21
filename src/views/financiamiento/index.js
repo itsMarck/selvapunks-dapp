@@ -8,6 +8,12 @@ import {
   useToast,
   Tooltip,
   Image,
+  Stat,
+  StatLabel,
+  StatNumber,
+  StatHelpText,
+  StatGroup,
+  Grid,
 } from "@chakra-ui/react";
 import { useWeb3React } from "@web3-react/core";
 import Web3 from "web3";
@@ -35,13 +41,13 @@ const Financiamiento = () => {
   const [lastWithdrawlTotal, setLastWithdrawlTotal] = useState(0);
   const [totalFunds, setTotalFunds] = useState(0);
   const [ethPrice, setEthPrice] = useState(0);
-  const [recentMints, setRecentMints] = useState([]); 
-  const [recentSales, setRecentSales] = useState([]); 
+  const [recentMints, setRecentMints] = useState([]);
+  const [recentSales, setRecentSales] = useState([]);
   const [lastWithdrawals, setLastWithdrawals] = useState([]);
   const [organizationWallet, setOrganizationWallet] = useState("");
   const [lastMintRetirado, setLastMintRetirado] = useState(0);
   const [lastSalesRetirado, setLastSalesRetirado] = useState(0);
-  
+
   const usdToPenRate = 3.75;
   const deploymentBlock = 2873541;
 
@@ -51,34 +57,25 @@ const Financiamiento = () => {
       try {
         // Obtener balance y precio del ETH en USD
         const [balance, ethPriceData] = await Promise.all([
-          web3.eth.getBalance(
-            "0xC130E91d6136dA905d09a636ebb40dDD2B853EbE"
-          ),
+          web3.eth.getBalance("0xC130E91d6136dA905d09a636ebb40dDD2B853EbE"),
           fetch(
             "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
           )
             .then((res) => res.json())
             .then((data) => data.ethereum.usd),
         ]);
-  
+
         setTotalFunds(parseFloat(balance));
         setEthPrice(ethPriceData);
-  
+
         //OBTENER LO RECAUDADO POR MINTEOS Y COMPRAS DEL ANTERIOR MES
         const [mintRevenueRetirado, salesRevenueRetirado] = await Promise.all([
           selvaPunks.methods.getMintRevenueRetirado().call(),
           selvaPunks.methods.getSalesRevenueRetirado().call(),
-         
         ]);
 
         setLastMintRetirado(parseFloat(mintRevenueRetirado) / 1e18);
         setLastSalesRetirado(parseFloat(salesRevenueRetirado) / 1e18);
-        
-
-
-
-
-
 
         // Obtener los eventos de NFT mint y compra
         const [mintEvents, purchaseEvents] = await Promise.all([
@@ -91,7 +88,7 @@ const Financiamiento = () => {
             toBlock: "latest",
           }),
         ]);
-  
+
         // Mostrar los últimos 5 NFTs minteados
         setRecentMints(
           mintEvents.slice(-5).map((event) => ({
@@ -101,7 +98,7 @@ const Financiamiento = () => {
             txHash: event.transactionHash, // Añadido para el enlace
           }))
         );
-  
+
         // Mostrar los últimos 5 NFTs vendidos
         const sales = purchaseEvents.slice(-5).map((event) => ({
           tokenId: event.returnValues.tokenId,
@@ -112,9 +109,13 @@ const Financiamiento = () => {
           txHash: event.transactionHash, // Añadido para el enlace
         }));
         setRecentSales(sales);
-  
+
         // calculo de los balances
-        const [mintRevenueBeforeLastWithdrawal, salesRevenueBeforeLastWithdrawal, lastWithdrawalTotal] = await Promise.all([
+        const [
+          mintRevenueBeforeLastWithdrawal,
+          salesRevenueBeforeLastWithdrawal,
+          lastWithdrawalTotal,
+        ] = await Promise.all([
           selvaPunks.methods.getMintRevenueBeforeLastWithdrawal().call(),
           selvaPunks.methods.getSalesRevenueBeforeLastWithdrawal().call(),
           selvaPunks.methods.getLastWithdrawalTotal().call(),
@@ -123,7 +124,7 @@ const Financiamiento = () => {
         setMintRevenue(parseFloat(mintRevenueBeforeLastWithdrawal) / 1e18);
         setSalesRevenue(parseFloat(salesRevenueBeforeLastWithdrawal) / 1e18);
         setLastWithdrawlTotal(parseFloat(lastWithdrawalTotal) / 1e18);
-  
+
         // Obtener datos de los retiros realizados
         const withdrawalEvents = await selvaPunks.getPastEvents(
           "FundsWithdrawn",
@@ -139,14 +140,10 @@ const Financiamiento = () => {
             txHash: event.transactionHash,
           }))
         );
-  
+
         // Obtener la wallet de la organización
         const wallet = await selvaPunks.methods.ORGANIZATION_WALLET().call();
         setOrganizationWallet(wallet);
-  
-       
-      
-
       } catch (error) {
         console.error("Error fetching contract data:", error);
       } finally {
@@ -218,70 +215,101 @@ const Financiamiento = () => {
   const totalFundsUsd = totalFundsEth * ethPrice;
   const totalFundsSoles = totalFundsUsd * usdToPenRate;
 
-
   return (
     <Flex direction="column" p={6}>
       <Heading mb={4}>Recaudación de fondos</Heading>
 
       {/* Mostrar el valor de Ethereum en tiempo real */}
-      <Box display="grid" gridTemplateColumns="1fr 1fr" gap={4} mb={6}>
-      <Box
-  p={4}
-  border="1px solid #ccc"
-  borderRadius="md"
-  backgroundImage={`url(${ethIcon})`}
-  backgroundRepeat="no-repeat"
-  backgroundPosition="right"
-  backgroundSize="100px"
->
-  <Heading size="md">1 Ethereum (ETH)</Heading>
-  <Text fontSize="lg" mb={2}>
-    <b>{ethPrice} USD</b>
-  </Text>
-  <Text fontSize="sm">Convertido a S/.: S/ {(ethPrice * usdToPenRate).toFixed(2)}</Text>
-</Box>
+      <Grid templateColumns="repeat(2, 1fr)" gap={4} mb={6}>
+        <Box
+          p={4}
+          border="1px solid #ccc"
+          borderRadius="md"
+          backgroundImage={`url(${ethIcon})`}
+          backgroundRepeat="no-repeat"
+          backgroundPosition="right"
+          backgroundSize="100px"
+        >
+          <Heading size="md">1 Ethereum (ETH)</Heading>
+          <Text fontSize="lg" mb={2}>
+            <b>{ethPrice} USD</b>
+          </Text>
+          <Text fontSize="sm">
+            Convertido a S/.: S/ {(ethPrice * usdToPenRate).toFixed(2)}
+          </Text>
+        </Box>
         <Box p={4} border="1px solid #ccc" borderRadius="md">
           <Heading size="md">Balance de este mes</Heading>
           <Text fontSize="lg" mb={2}>
             Total recaudado:{" "}
             <Image src={ethIcon} alt="ETH" display="inline-block" w="1rem" />
             <b>
-              {totalFundsEth.toFixed(4)} ETH
-              
-            </b>{" "}
-            (${totalFundsUsd.toFixed(2)} | S/.{totalFundsSoles.toFixed(2)})
+              {totalFundsEth.toFixed(4)} ETH (${totalFundsUsd.toFixed(2)} | S/.
+              {totalFundsSoles.toFixed(2)})
+            </b>
           </Text>
           <Text>
-        Minteo de NFTs: <b>{mintRevenue.toFixed(4)} ETH</b>
-      </Text>
-      <Text>
-        Compras en el Marketplace: <b>{salesRevenue.toFixed(4)} ETH</b>
-      </Text>
-        </Box> 
-      </Box>
+            Minteo de NFTs:{" "}
+            <b>
+              {mintRevenue.toFixed(4)} ETH (${(mintRevenue * ethPrice).toFixed(
+                2
+              )} | S/.{(mintRevenue * ethPrice * usdToPenRate).toFixed(2)})
+            </b>
+          </Text>
+          <Text>
+            Compras en el Marketplace:{" "}
+            <b>
+              {salesRevenue.toFixed(4)} ETH (${(salesRevenue * ethPrice).toFixed(
+                2
+              )} | S/.{(salesRevenue * ethPrice * usdToPenRate).toFixed(2)})
+            </b>
+          </Text>
+        </Box>
+      </Grid>
 
       {/* Fondos del mes anterior */}
-      <Box p={4} border="1px solid #ccc" borderRadius="md">
+      <Box p={4} border="1px solid #ccc" borderRadius="md" mb={6}>
         <Heading size="md">Fondos del mes anterior</Heading>
         <Text>
-          Total recaudado: <b>{lastWithdrawlTotal.toFixed(4)} ETH</b>
+          Total recaudado:{" "}
+          <b>
+            {lastWithdrawlTotal.toFixed(4)} ETH (${(
+              lastWithdrawlTotal * ethPrice
+            ).toFixed(2)} | S/.{(lastWithdrawlTotal * ethPrice * usdToPenRate).toFixed(2)})
+          </b>
         </Text>
         <Text>
-          Minteo de NFTs: <b>{lastMintRetirado.toFixed(4)} ETH</b>
+          Minteo de NFTs:{" "}
+          <b>
+            {lastMintRetirado.toFixed(4)} ETH (${(
+              lastMintRetirado * ethPrice
+            ).toFixed(2)} | S/.{(lastMintRetirado * ethPrice * usdToPenRate).toFixed(2)})
+          </b>
         </Text>
         <Text>
-          Compras en el Marketplace: <b>{lastSalesRetirado.toFixed(4)}</b>
-          <b>{} ETH</b>
+          Compras en el Marketplace:{" "}
+          <b>
+            {lastSalesRetirado.toFixed(4)} ETH (${(
+              lastSalesRetirado * ethPrice
+            ).toFixed(2)} | S/.{(lastSalesRetirado * ethPrice * usdToPenRate).toFixed(2)})
+          </b>
         </Text>
-        
       </Box>
-      
-      <br />
+
       {/* Mostrar los últimos 5 NFTs minteados */}
-      <Heading size="md" mb={4}>Últimos 5 NFTs Mintados:</Heading>
+      <Heading size="md" mb={4}>
+        Últimos 5 NFTs Mintados:
+      </Heading>
       <Flex direction="row" gap={4} flexWrap="wrap">
         {recentMints.map((mint, index) => (
-          <Box key={index} p={3} border="1px solid #ccc" borderRadius="md" mb={4} width="200px">
+          <Box
+            key={index}
+            p={3}
+            border="1px solid #ccc"
+            borderRadius="md"
+            mb={4}
+            width="200px"
+          >
             <Image
               src={mint.tokenURI + ".png"}
               alt={`NFT #${mint.tokenId}`}
@@ -301,20 +329,36 @@ const Financiamiento = () => {
             <Text>
               Recaudado por minteo:{" "}
               <Image src={ethIcon} alt="ETH" display="inline-block" w="1rem" />
-              <b>0.001 ETH</b> (S/.{(0.001 * ethPrice * usdToPenRate).toFixed(2)})
+              <b>0.001 ETH</b> (S/.
+              {(0.001 * ethPrice * usdToPenRate).toFixed(2)})
             </Text>
             <Text>
-              <a href={`https://holesky.etherscan.io/tx/${mint.txHash}`} target="_blank" rel="noopener noreferrer">Ver transacción</a>
+              <a
+                href={`https://holesky.etherscan.io/tx/${mint.txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Ver transacción
+              </a>
             </Text>
           </Box>
         ))}
       </Flex>
 
       {/* Mostrar las últimas 5 ventas */}
-      <Heading size="md" mb={4}>Últimas 5 Ventas:</Heading>
+      <Heading size="md" mb={4}>
+        Últimas 5 Ventas:
+      </Heading>
       <Flex direction="row" gap={4} flexWrap="wrap">
         {recentSales.map((sale, index) => (
-          <Box key={index} p={3} border="1px solid #ccc" borderRadius="md" mb={4} width="200px">
+          <Box
+            key={index}
+            p={3}
+            border="1px solid #ccc"
+            borderRadius="md"
+            mb={4}
+            width="200px"
+          >
             <Image
               src={sale.tokenURI + ".png"}
               alt={`NFT #${sale.tokenId}`}
@@ -345,10 +389,17 @@ const Financiamiento = () => {
             <Text>
               Recaudado:{" "}
               <Image src={ethIcon} alt="ETH" display="inline-block" w="1rem" />
-              <b>{(sale.price * 0.05).toFixed(4)} ETH</b> (S/.{(sale.price * 0.05 * ethPrice * usdToPenRate).toFixed(2)})
+              <b>{(sale.price * 0.05).toFixed(4)} ETH</b> (S/.
+              {(sale.price * 0.05 * ethPrice * usdToPenRate).toFixed(2)})
             </Text>
             <Text>
-              <a href={`https://holesky.etherscan.io/tx/${sale.txHash}`} target="_blank" rel="noopener noreferrer">Ver transacción</a>
+              <a
+                href={`https://holesky.etherscan.io/tx/${sale.txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Ver transacción
+              </a>
             </Text>
           </Box>
         ))}
@@ -356,25 +407,25 @@ const Financiamiento = () => {
 
       {/* Historial de Retiros */}
       <Heading size="md" mt={6} mb={4}>
-  Historial de Retiros:
-</Heading>
-<Box maxHeight="200px" overflowY="auto" border="1px solid #ccc" p={4}>
-  {lastWithdrawals.map((withdrawal, index) => (
-    <Text key={index} mb={2}>
-      <Image src={ethIcon} alt="ETH" display="inline-block" w="1rem" />
-      {withdrawal.amount.toFixed(4)} ETH{" "}
-      (S/.{(withdrawal.amount * ethPrice * usdToPenRate).toFixed(2)}) retirados el{" "}
-      {new Date(withdrawal.timestamp * 1000).toLocaleString()}{" "}
-      <a
-        href={`https://holesky.etherscan.io/tx/${withdrawal.txHash}`}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Ver transacción
-      </a>
-    </Text>
-  ))}
-</Box>
+        Historial de Retiros:
+      </Heading>
+      <Box maxHeight="200px" overflowY="auto" border="1px solid #ccc" p={4}>
+        {lastWithdrawals.map((withdrawal, index) => (
+          <Text key={index} mb={2}>
+            <Image src={ethIcon} alt="ETH" display="inline-block" w="1rem" />
+            {withdrawal.amount.toFixed(4)} ETH (S/.
+            {(withdrawal.amount * ethPrice * usdToPenRate).toFixed(2)}) retirados el{" "}
+            {new Date(withdrawal.timestamp * 1000).toLocaleString()}{" "}
+            <a
+              href={`https://holesky.etherscan.io/tx/${withdrawal.txHash}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Ver transacción
+            </a>
+          </Text>
+        ))}
+      </Box>
 
       {account === organizationWallet && (
         <Button colorScheme="teal" mt={6} onClick={handleWithdrawFunds}>
