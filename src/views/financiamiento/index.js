@@ -240,7 +240,7 @@ const Financiamiento = () => {
         </Box>
         <Box p={4} border="1px solid #ccc" borderRadius="md">
           <Heading size="md">Balance de este mes</Heading>
-          <Text fontSize="lg" mb={2}>
+          <Text fontSize="lg" >
             Total recaudado:{" "}
             <Image src={ethIcon} alt="ETH" display="inline-block" w="1rem" />
             <b>
@@ -251,18 +251,18 @@ const Financiamiento = () => {
           <Text>
             Minteo de NFTs:{" "}
             <b>
-              {mintRevenue.toFixed(4)} ETH (${(mintRevenue * ethPrice).toFixed(
+              {mintRevenue.toFixed(4)} ETH </b> (${(mintRevenue * ethPrice).toFixed(
                 2
               )} | S/.{(mintRevenue * ethPrice * usdToPenRate).toFixed(2)})
-            </b>
+            
           </Text>
           <Text>
             Compras en el Marketplace:{" "}
             <b>
-              {salesRevenue.toFixed(4)} ETH (${(salesRevenue * ethPrice).toFixed(
+              {salesRevenue.toFixed(4)} ETH </b> (${(salesRevenue * ethPrice).toFixed(
                 2
               )} | S/.{(salesRevenue * ethPrice * usdToPenRate).toFixed(2)})
-            </b>
+            
           </Text>
         </Box>
       </Grid>
@@ -270,7 +270,7 @@ const Financiamiento = () => {
       {/* Fondos del mes anterior */}
       <Box p={4} border="1px solid #ccc" borderRadius="md" mb={6}>
         <Heading size="md">Fondos del mes anterior</Heading>
-        <Text>
+        <Text fontSize={"lg"} >
           Total recaudado:{" "}
           <b>
             {lastWithdrawlTotal.toFixed(4)} ETH (${(
@@ -281,18 +281,18 @@ const Financiamiento = () => {
         <Text>
           Minteo de NFTs:{" "}
           <b>
-            {lastMintRetirado.toFixed(4)} ETH (${(
+            {lastMintRetirado.toFixed(4)} ETH </b> (${(
               lastMintRetirado * ethPrice
             ).toFixed(2)} | S/.{(lastMintRetirado * ethPrice * usdToPenRate).toFixed(2)})
-          </b>
+          
         </Text>
         <Text>
           Compras en el Marketplace:{" "}
           <b>
-            {lastSalesRetirado.toFixed(4)} ETH (${(
+            {lastSalesRetirado.toFixed(4)} ETH </b> (${(
               lastSalesRetirado * ethPrice
             ).toFixed(2)} | S/.{(lastSalesRetirado * ethPrice * usdToPenRate).toFixed(2)})
-          </b>
+          
         </Text>
       </Box>
 
